@@ -1,0 +1,17 @@
+TASK2:
+🚀 Built a Text Generation Model using GPT-2
+Implemented a pre-trained GPT-2 model to generate human-like text from custom prompts.
+Explored how transformers predict the next word in a sequence and experimented with parameters like temperature to control creativity.
+Excited to keep building in Generative AI! 🔥
+
+INUPUT:
+pip install diffusers transformers torch
+from diffusers import StableDiffusionPipeline
+import torch
+
+pipe = StableDiffusionPipeline.from_pretrained(
+    "runwayml/stable-diffusion-v1-5"
+).to("cpu")
+
+image = pipe("A futuristic AI robot in cyberpunk city").images[0]
+image
