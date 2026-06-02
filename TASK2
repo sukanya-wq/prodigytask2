@@ -3,6 +3,7 @@ TASK2:
 Implemented a pre-trained GPT-2 model to generate human-like text from custom prompts.
 Explored how transformers predict the next word in a sequence and experimented with parameters like temperature to control creativity.
 Excited to keep building in Generative AI! 🔥
+enter your idea and ift will generate matter
 
 INUPUT:
 pip install diffusers transformers torch
