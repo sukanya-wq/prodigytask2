@@ -6,6 +6,7 @@ Excited to keep building in Generative AI! 🔥
 
 INUPUT:
 pip install diffusers transformers torch
+pip install spacy
 from diffusers import StableDiffusionPipeline
 import torch
 
