@@ -16,3 +16,7 @@ pipe = StableDiffusionPipeline.from_pretrained(
 image = pipe("A futuristic AI robot in cyberpunk city").images[0]
 image
 print("image")
+
+
+
+output will be displyaed 
