@@ -14,7 +14,3 @@ pipe = StableDiffusionPipeline.from_pretrained(
 ).to("cpu")
 
 image = pipe("A futuristic AI robot in cyberpunk city").images[0]
-image
-print("image")
-output
-a image will be created
