@@ -11,7 +11,7 @@ import torch
 
 pipe = StableDiffusionPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5"
-).to("cpu")
+).to("cpu")code-review-copilot-sukanya.2026-06-02.private-key (2).pem    
 import jwt from "jsonwebtoken";
 import { formatReviewAsMarkdown } from "./reviewer.js"import jwt from "jsonwebtoken";
 import fs from "fs";
