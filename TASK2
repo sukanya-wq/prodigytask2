@@ -8,6 +8,8 @@ INUPUT:
 pip install diffusers transformers torch
 from diffusers import StableDiffusionPipeline
 import torch
+import spacy
+import matplotlib.pyplot as plt
 
 pipe = StableDiffusionPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5"
