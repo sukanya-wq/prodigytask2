@@ -12,7 +12,140 @@ import torch
 pipe = StableDiffusionPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5"
 ).to("cpu")
+import jwt from "jsonwebtoken";
+import { formatReviewAsMarkdown } from "./reviewer.js";
+import fs from "fs";
 
+const GITHUB_API = "https://api.github.com";
+
+/* =========================
+   GENERATE GITHUB APP JWT
+========================= */
+function generateAppJWT() {
+  const privateKey = fs.readFileSync(
+    "./src/keys/code-review-copilot-sukanya.2026-06-02.private-key (2).pem",
+    "utf8"
+  );
+
+  const now = Math.floor(Date.now() / 1000);
+
+  const appJWT = jwt.sign(
+    {
+      iat: now - 30,
+      exp: now + 600,
+      iss: Number(process.env.GITHUB_APP_ID),
+    },
+    privateKey,
+    { algorithm: "RS256" }
+  );
+
+  const decoded = jwt.decode(appJWT);
+  console.log("JWT ISS:", decoded.iss);
+
+  return appJWT;
+}
+
+/* =========================
+   GET INSTALLATION TOKEN
+========================= */
+export async function getInstallationToken(installationId) {
+  const appJWT = generateAppJWT();
+
+  console.log("📦 INSTALLATION ID:", installationId);
+
+  const res = await fetch(
+    `${GITHUB_API}/app/installations/${installationId}/access_tokens`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${appJWT}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    }
+  );
+
+  const text = await res.text();
+
+  console.log("🔴 INSTALLATION TOKEN RESPONSE:");
+  console.log("STATUS:", res.status);
+  console.log("BODY:", text);
+
+  if (!res.ok) {
+    throw new Error(`GitHub installation token failed: ${res.status}`);
+  }
+
+  const data = JSON.parse(text);
+  return data.token;
+}
+
+/* =========================
+   GET PR DIFF
+========================= */
+export async function getPRDiff(token, repoFullName, prNumber) {
+  const res = await fetch(
+    `${GITHUB_API}/repos/${repoFullName}/pulls/${prNumber}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github.diff",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    }
+  );
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch PR diff: ${text}`);
+  }
+
+  return text;
+}
+
+/* =========================
+   POST REVIEW COMMENT
+========================= */
+export async function postReviewComment(
+  token,
+  repoFullName,
+  prNumber,
+  review
+) {
+  const body = formatReviewAsMarkdown(review);
+
+  const githubEvent =
+    review.verdict === "APPROVE"
+      ? "APPROVE"
+      : review.verdict === "REQUEST CHANGES"
+      ? "REQUEST_CHANGES"
+      : "COMMENT";
+
+  const res = await fetch(
+    `${GITHUB_API}/repos/${repoFullName}/pulls/${prNumber}/reviews`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      body: JSON.stringify({
+        body,
+        event: githubEvent,
+      }),
+    }
+  );
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    throw new Error(`Failed to post review: ${text}`);
+  }
+
+  return JSON.parse(text);
+}
 image = pipe("A futuristic AI robot in cyberpunk city").images[0]
 
 import jwt from "jsonwebtoken";
