@@ -8,6 +8,12 @@ INUPUT:
 pip install diffusers transformers torch
 from diffusers import StableDiffusionPipeline
 import torch
+import spacy
+import matplotlib.pyplot as plt
+ E:\codereview\code-review-copilot> node src/server.js
+◇ injected env (5) from .env // tip: ⌘ enable debugging { debug: true }
+webhook hit
+🚀 CodeReview Copilot running on port 3000
 
 pipe = StableDiffusionPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5"
